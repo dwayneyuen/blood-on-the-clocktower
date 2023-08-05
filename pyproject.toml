@@ -4,3 +4,10 @@ version = "0.1.0"
 dependencies = [
     "black==23.7.0",
 ]
+
+[tool.pyright]
+include = [
+    "main.py",
+]
+
+typeCheckingMode = "strict"

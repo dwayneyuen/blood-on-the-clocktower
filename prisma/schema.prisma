@@ -1,0 +1,123 @@
+datasource db {
+  // could be postgresql or mysql
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator db {
+  provider             = "prisma-client-py"
+  interface            = "asyncio"
+  recursive_type_depth = 5
+}
+
+enum RoleType {
+  TOWNSFOLK
+  OUTSIDER
+  MINION
+  DEMON
+}
+
+enum TownsfolkRole {
+  CHEF
+  EMPATH
+  FORTUNE_TELLER
+  INVESTIGATOR
+  LIBRARIAN
+  MAYOR
+  MONK
+  RAVENKEEPER
+  SLAYER
+  SOLDIER
+  UNDERTAKER
+  VIRGIN
+  WASHERWOMAN
+}
+
+enum OutsiderRole {
+  BUTLER
+  DRUNK
+  RECLUSE
+  SAINT
+}
+
+enum MinionRole {
+  BARON
+  POISONER
+  SCARLET_WOMAN
+  SPY
+}
+
+enum DemonRole {
+  IMP
+}
+
+enum GameStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  FINISHED
+}
+
+model Game {
+  id         String   @id @default(cuid())
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  status GameStatus
+
+  game_players GamePlayer[]
+
+  @@index([status])
+}
+
+model GamePlayer {
+  id         String   @id @default(cuid())
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  role_type      RoleType
+  townsfolk_role TownsfolkRole?
+  outsider_role  OutsiderRole?
+  minion_role    MinionRole?
+  demon_role     DemonRole?
+
+  game      Game   @relation(fields: [game_id], references: [id])
+  game_id   String
+  player    Player @relation(fields: [player_id], references: [id])
+  player_id String
+}
+
+model GameQueue {
+  id         String   @id @default(cuid())
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  game_queue_players GameQueuePlayer[]
+}
+
+model GameQueuePlayer {
+  id         String   @id @default(cuid())
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  game_queue    GameQueue @relation(fields: [game_queue_id], references: [id])
+  game_queue_id String
+  player        Player    @relation(fields: [player_id], references: [id])
+  player_id     String
+}
+
+model Player {
+  id         String   @id @default(cuid())
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  discord_id   Int
+  display_name String
+  name         String
+  good_wins    Int    @default(0)
+  evil_wins    Int    @default(0)
+
+  game_players       GamePlayer[]
+  game_queue_players GameQueuePlayer[]
+
+  @@index([discord_id])
+}
