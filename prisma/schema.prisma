@@ -1,5 +1,4 @@
 datasource db {
-  // could be postgresql or mysql
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
@@ -8,13 +7,6 @@ generator db {
   provider             = "prisma-client-py"
   interface            = "asyncio"
   recursive_type_depth = 5
-}
-
-enum RoleType {
-  TOWNSFOLK
-  OUTSIDER
-  MINION
-  DEMON
 }
 
 enum TownsfolkRole {
@@ -52,9 +44,13 @@ enum DemonRole {
 }
 
 enum GameStatus {
-  NOT_STARTED
   IN_PROGRESS
   FINISHED
+}
+
+enum GamePhase {
+  DAY
+  NIGHT
 }
 
 model Game {
@@ -62,7 +58,9 @@ model Game {
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 
-  status GameStatus
+  phase         GamePhase
+  phase_ends_at DateTime
+  status        GameStatus
 
   game_players GamePlayer[]
 
@@ -75,7 +73,6 @@ model GamePlayer {
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 
-  role_type      RoleType
   townsfolk_role TownsfolkRole?
   outsider_role  OutsiderRole?
   minion_role    MinionRole?
@@ -86,6 +83,12 @@ model GamePlayer {
   player    Player @relation(fields: [player_id], references: [id])
   player_id String
 
+  is_alive    Boolean @default(true)
+  is_drunk    Boolean @default(false)
+  is_poisoned Boolean @default(false)
+
+  @@index([game_id])
+  @@index([player_id])
   @@map("game_player")
 }
 
@@ -97,12 +100,17 @@ model Player {
   discord_id       String   @unique
   display_name     String
   is_admin         Boolean  @default(false)
+  is_fake          Boolean  @default(false)
   is_queued        Boolean  @default(false)
   last_activity_at DateTime @default(now())
   name             String
 
-  game_players       GamePlayer[]
+  game_players GamePlayer[]
 
   @@index([discord_id])
+  @@index([is_admin])
+  @@index([is_fake])
+  @@index([is_queued])
+  @@index([last_activity_at])
   @@map("player")
 }
