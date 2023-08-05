@@ -1,10 +1,11 @@
 from datetime import datetime, timezone
-import asyncio
 import os
 from discord import Colour, Embed, Member, Message, Reaction, User
 from discord.ext.commands import Context, CommandError, UserInputError
 from dotenv import load_dotenv
 
+# Necessary for commands to be registered
+from .commands import *
 from .bot import COMMAND_PREFIX, bot
 from .prisma import prisma_client
 
@@ -38,9 +39,9 @@ async def on_command_error(ctx: Context, error: CommandError):
             print("[on_command_error]:", error)
 
 
-@bot.event
-async def on_message(message: Message):
-    print("[on_message]", message.author.display_name, ":", message.content)
+@bot.listen("on_message")
+async def listen_on_message(message: Message):
+    print("[listen_on_message]", message.author.display_name, ":", message.content)
     # if CHANNEL_ID and message.channel.id == CHANNEL_ID:
     if True:
         player = await prisma_client.player.find_unique(
@@ -66,35 +67,6 @@ async def on_message(message: Message):
                     "name": message.author.name,
                 }
             )
-
-    #     else:
-    #         session.add(
-    #             Player(
-    #                 id=message.author.id,
-    #                 name=message.author.display_name,
-    #                 last_activity_at=datetime.now(timezone.utc),
-    #             )
-    #         )
-    #     session.commit()
-    #     session.close()
-    #     await bot.process_commands(message)
-
-    #     # Custom commands below
-    #     if not message.content.startswith(COMMAND_PREFIX):
-    #         return
-
-    #     bot_commands = {command.name for command in bot.commands}
-    #     command_name = message.content.split(" ")[0][1:]
-    #     session = Session()
-    #     if command_name not in bot_commands:
-    #         custom_command: CustomCommand | None = (
-    #             session.query(CustomCommand)
-    #             .filter(CustomCommand.name == command_name)
-    #             .first()
-    #         )
-    #         if custom_command:
-    #             await message.channel.send(content=custom_command.output)
-    #     session.close()
 
 
 @bot.event
@@ -145,8 +117,6 @@ def main():
     load_dotenv()
     API_KEY = os.getenv("DISCORD_API_KEY")
     if API_KEY:
-        # loop = asyncio.get_event_loop()
-        # loop.run_until_complete(prisma_client.connect())
         bot.run(API_KEY)
     else:
         print("You must define DISCORD_API_KEY!")
