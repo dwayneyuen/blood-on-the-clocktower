@@ -67,6 +67,8 @@ model Game {
   game_players GamePlayer[]
 
   @@index([status])
+
+  @@map("game")
 }
 
 model GamePlayer {
@@ -84,6 +86,8 @@ model GamePlayer {
   game_id   String
   player    Player @relation(fields: [player_id], references: [id])
   player_id String
+
+  @@map("game_player")
 }
 
 model GameQueue {
@@ -92,6 +96,8 @@ model GameQueue {
   updated_at DateTime @updatedAt
 
   game_queue_players GameQueuePlayer[]
+
+  @@map("game_queue")
 }
 
 model GameQueuePlayer {
@@ -103,6 +109,8 @@ model GameQueuePlayer {
   game_queue_id String
   player        Player    @relation(fields: [player_id], references: [id])
   player_id     String
+
+  @@map("game_queue_player")
 }
 
 model Player {
@@ -110,14 +118,15 @@ model Player {
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 
-  discord_id   Int
-  display_name String
-  name         String
-  good_wins    Int    @default(0)
-  evil_wins    Int    @default(0)
+  discord_id       String      @unique
+  display_name     String
+  last_activity_at DateTime @default(now())
+  name             String
 
   game_players       GamePlayer[]
   game_queue_players GameQueuePlayer[]
 
   @@index([discord_id])
+
+  @@map("player")
 }
