@@ -4,10 +4,10 @@ from discord import Colour, Embed, Member, Message, Reaction, User
 from discord.ext.commands import Context, CommandError, UserInputError
 from dotenv import load_dotenv
 
-# Necessary for commands to be registered
-from .commands import *
 from .bot import COMMAND_PREFIX, bot
+from .commands import *  # Just to import commands
 from .prisma import prisma_client
+from .tasks import *  # Just to import tasks
 
 
 @bot.event

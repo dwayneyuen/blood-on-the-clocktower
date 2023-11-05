@@ -1,2 +1,2 @@
-# blood-on-the-clocktower
-Discord bot for playing Blood on the Clocktower
+# goldrush
+Discord bot for playing the chat game Goldrush, originally by Celios
